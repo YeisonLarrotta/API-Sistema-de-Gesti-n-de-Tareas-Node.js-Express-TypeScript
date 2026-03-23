@@ -19,6 +19,9 @@ El proyecto sigue una arquitectura en capas:
 - `src/middlewares`: autenticacion y manejo de errores.
 - `src/config`: configuracion centralizada.
 - `src/utils`: utilidades (errores custom, logger).
+- `src/validations`: esquemas AJV para validar entradas.
+- `src/docs`: especificacion Swagger/OpenAPI.
+- `tests`: pruebas de integracion con Vitest + Supertest.
 
 ## Requisitos previos
 - Node.js 18+ (recomendado 20+)
@@ -77,6 +80,7 @@ Ejemplo de conexion (pooler Supabase):
 - Login con JWT.
 - Middleware `authenticateToken` para proteger rutas privadas.
 - Filtro por `user_id` para evitar acceso entre usuarios.
+- Validacion de payloads con AJV (`auth` y `tasks`).
 
 ## Manejo de errores
 - Clases de error personalizadas en `src/utils/customErrors.ts`.
@@ -86,9 +90,11 @@ Ejemplo de conexion (pooler Supabase):
 - `npm run dev`: modo desarrollo con recarga.
 - `npm run build`: compila TypeScript.
 - `npm start`: ejecuta version compilada.
+- `npm run test`: ejecuta pruebas de integracion con Vitest.
 
 ## Swagger
-- Documentacion disponible en: `http://localhost:3000/docs`
+- Documentacion local: `http://localhost:3000/docs`
+- Documentacion desplegada: `http://sistemadegestiondetareas-env.eba-5hhjm9jv.us-east-1.elasticbeanstalk.com/docs`
 - Incluye endpoints de health, auth y tasks con esquema Bearer JWT.
 
 ## Despliegue en AWS Elastic Beanstalk
@@ -101,8 +107,17 @@ Ejemplo de conexion (pooler Supabase):
 4. Verificar:
    - `/health`
    - `/docs`
+5. URL del entorno desplegado:
+   - `http://sistemadegestiondetareas-env.eba-5hhjm9jv.us-east-1.elasticbeanstalk.com`
 
-## Estado actual y siguientes pasos
-Pendiente para dejar la prueba tecnica aun mas fuerte:
-- Pruebas unitarias/integracion (Vitest o Jest).
-- Documentacion JSDoc mas completa.
+## Estado actual
+- API desplegada en AWS Elastic Beanstalk.
+- Endpoint de salud operativo (`/health`).
+- Swagger operativo (`/docs`).
+- Pruebas de integracion basicas implementadas con Vitest.
+- JSDoc agregado en servicios, controladores y middleware clave.
+
+## Mejoras futuras (opcionales)
+- Habilitar HTTPS con dominio propio + certificado ACM.
+- Ampliar cobertura de pruebas unitarias y de integracion.
+- Endurecer observabilidad (tracing y logs estructurados por request).
