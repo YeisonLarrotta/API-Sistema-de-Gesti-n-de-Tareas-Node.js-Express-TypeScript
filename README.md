@@ -94,9 +94,3 @@ Ejemplo de conexion (pooler Supabase):
 ## Swagger
 - Documentacion disponible en: `http://localhost:3000/docs`
 - Incluye endpoints de health, auth y tasks con esquema Bearer JWT.
-
-## Estado actual y siguientes pasos
-Pendiente para dejar la prueba tecnica aun mas fuerte:
-- Pruebas unitarias/integracion (Vitest o Jest).
-- Documentacion JSDoc mas completa.
->>>>>>> 0a021d3 (Prueba tecnica)
