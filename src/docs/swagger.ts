@@ -1,5 +1,9 @@
 import swaggerJSDoc from 'swagger-jsdoc';
 
+const appUrl =
+  process.env.APP_URL ??
+  'http://sistemadegestiondetareas-env.eba-5hhjm9jv.us-east-1.elasticbeanstalk.com';
+
 const options: swaggerJSDoc.Options = {
   definition: {
     openapi: '3.0.3',
@@ -8,7 +12,7 @@ const options: swaggerJSDoc.Options = {
       version: '1.0.0',
       description: 'API REST con autenticacion JWT y CRUD de tareas.',
     },
-    servers: [{ url: 'http://localhost:3000' }],
+    servers: [{ url: appUrl }, { url: 'http://localhost:3000' }],
     components: {
       securitySchemes: {
         bearerAuth: {
