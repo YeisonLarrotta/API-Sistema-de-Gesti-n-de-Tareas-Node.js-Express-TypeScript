@@ -33,7 +33,6 @@ export const createTask = async (req: any, res: Response, next: NextFunction) =>
   }
 };
 
-// --- OBTENER TAREAS ---
 export const getTasks = async (req: any, res: Response, next: NextFunction) => {
   try {
     const userId = req.user.id;
@@ -93,11 +92,10 @@ export const updateTask = async (req: any, res: Response, next: NextFunction) =>
   }
 };
 
-// --- COMPLETAR TAREA (Paso 2 actualizado) ---
 export const completeTask = async (req: any, res: Response, next: NextFunction) => {
   try {
-    const { id } = req.params; // Sacamos el id de la URL
-    const userId = req.user.id; // Sacamos el usuario del token
+    const { id } = req.params;
+    const userId = req.user.id;
     
     const task = await taskService.completeTask(Number(id), userId);
     

@@ -91,6 +91,6 @@ export class TaskService {
   async deleteTask(taskId: number, userId: number) {
     const query = 'DELETE FROM tasks WHERE id = $1 AND user_id = $2 RETURNING *';
     const result = await pool.query(query, [taskId, userId]);
-    return result.rows[0]; // Si devuelve algo, es que la tarea existía y se borró
+    return result.rows[0];
   }
 }

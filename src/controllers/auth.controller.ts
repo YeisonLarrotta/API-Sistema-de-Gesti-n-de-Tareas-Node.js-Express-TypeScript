@@ -31,11 +31,9 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password } = req.body;
-    
-    // Llamamos al servicio para validar y obtener el token
+
     const result = await authService.login(email, password);
-    
-    // Si todo sale bien, devolvemos el token y los datos del usuario
+
     res.status(200).json({
       message: 'Login exitoso',
       ...result

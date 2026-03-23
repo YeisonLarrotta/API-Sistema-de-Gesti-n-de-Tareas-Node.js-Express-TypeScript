@@ -1,7 +1,7 @@
 import { config } from './config/config';
 import app from './app';
 
-// Iniciamos el servidor usando el puerto definido en nuestro Singleton de Configuración
+// Punto de entrada HTTP de la aplicacion.
 const PORT = config.PORT;
 app.listen(PORT, () => {
 });

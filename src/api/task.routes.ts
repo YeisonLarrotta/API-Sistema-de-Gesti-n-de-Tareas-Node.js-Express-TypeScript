@@ -17,7 +17,7 @@ import {
 
 const router = Router();
 
-// Todas estas rutas están protegidas
+// Todas las rutas de tareas requieren JWT valido.
 router.post('/', authenticateToken, validate(createTaskSchema), createTask);
 router.get('/', authenticateToken, getTasks);
 router.get('/:id', authenticateToken, validate(taskIdParamSchema, 'params'), getTaskById);

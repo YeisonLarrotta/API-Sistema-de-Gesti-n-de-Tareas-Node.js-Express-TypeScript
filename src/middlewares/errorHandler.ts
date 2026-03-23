@@ -15,7 +15,7 @@ export const errorHandler = (
     });
   }
 
-  // Error inesperado (ej. fallo de base de datos)
+  // Captura errores no controlados y evita filtrar detalles internos.
   logger.error('Error no controlado', err);
   return res.status(500).json({
     status: 'error',

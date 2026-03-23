@@ -2,7 +2,7 @@ import { Pool } from 'pg';
 import { config } from '../config/config';
 import { logger } from '../utils/logger';
 
-// Creamos el Pool usando la URL de conexión de nuestro Singleton
+// Pool de conexiones reutilizable para PostgreSQL.
 export const pool = new Pool({
   connectionString: config.DB_URL,
   ssl: {

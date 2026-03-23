@@ -20,30 +20,26 @@ export class AuthService {
    * Valida email y password y devuelve token JWT + perfil basico.
    */
   async login(email: string, password: string) {
-    // 1. Buscamos al usuario por su email
     const query = 'SELECT * FROM users WHERE email = $1';
     const result = await pool.query(query, [email]);
     const user = result.rows[0];
 
-    // 2. Si no existe, lanzamos error
     if (!user) {
       throw new Error('Credenciales inválidas');
     }
 
-    // 3. Comparamos la contraseña que envía Postman con la que está en la DB
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       throw new Error('Credenciales inválidas');
     }
 
-    // 4. Si todo está OK, creamos el Token JWT
+    // Genera un token corto de sesion para operaciones autenticadas.
     const token = jwt.sign(
       { id: user.id, email: user.email },
       config.JWT_SECRET,
-      { expiresIn: '2h' } // El token expira en 2 horas
+      { expiresIn: '2h' }
     );
 
-    // 5. Devolvemos el token y los datos básicos del usuario
     return {
       token,
       user: {
