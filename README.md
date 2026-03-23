@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-# API-Sistema-de-Gestion-de-Tareas-Node.js-Express-TypeScript
-API RESTful robusta y bien organizada que demuestre habilidad para escribir código limpio, estructurado y seguro, aplicando prácticas de desarrollo backend con TypeScript. La API permitirá a los usuarios registrarse, iniciar sesión y administrar sus propias tareas personales.
-=======
 # Sistema de Gestion de Tareas API
 
 API RESTful para registro de usuarios, autenticacion con JWT y gestion de tareas personales.
@@ -94,3 +90,19 @@ Ejemplo de conexion (pooler Supabase):
 ## Swagger
 - Documentacion disponible en: `http://localhost:3000/docs`
 - Incluye endpoints de health, auth y tasks con esquema Bearer JWT.
+
+## Despliegue en AWS Elastic Beanstalk
+1. Crear aplicacion en Elastic Beanstalk con plataforma Node.js.
+2. Configurar variables de entorno en EB:
+   - `PORT=8080`
+   - `JWT_SECRET=...`
+   - `DATABASE_URL=...`
+3. Subir el codigo (zip o desde repositorio).
+4. Verificar:
+   - `/health`
+   - `/docs`
+
+## Estado actual y siguientes pasos
+Pendiente para dejar la prueba tecnica aun mas fuerte:
+- Pruebas unitarias/integracion (Vitest o Jest).
+- Documentacion JSDoc mas completa.
