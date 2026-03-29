@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, RequestHandler } from 'express';
 import {
   createTask,
   getTasks,
@@ -18,22 +18,22 @@ import {
 const router = Router();
 
 // Todas las rutas de tareas requieren JWT valido.
-router.post('/', authenticateToken, validate(createTaskSchema), createTask);
-router.get('/', authenticateToken, getTasks);
-router.get('/:id', authenticateToken, validate(taskIdParamSchema, 'params'), getTaskById);
+router.post('/', authenticateToken, validate(createTaskSchema), createTask as unknown as RequestHandler);
+router.get('/', authenticateToken, getTasks as unknown as RequestHandler);
+router.get('/:id', authenticateToken, validate(taskIdParamSchema, 'params'), getTaskById as unknown as RequestHandler);
 router.put(
   '/:id',
   authenticateToken,
   validate(taskIdParamSchema, 'params'),
   validate(updateTaskSchema),
-  updateTask
+  updateTask as unknown as RequestHandler
 );
-router.delete('/:id', authenticateToken, validate(taskIdParamSchema, 'params'), deleteTask);
+router.delete('/:id', authenticateToken, validate(taskIdParamSchema, 'params'), deleteTask as unknown as RequestHandler);
 router.patch(
   '/:id/complete',
   authenticateToken,
   validate(taskIdParamSchema, 'params'),
-  completeTask
+  completeTask as unknown as RequestHandler
 );
 
 export default router;

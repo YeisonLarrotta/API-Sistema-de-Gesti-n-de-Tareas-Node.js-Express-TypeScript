@@ -1,10 +1,17 @@
-import { pool } from '../persistence/db';
-
-type TaskStatus = 'pendiente' | 'en curso' | 'completada';
+import { TaskRepository, TaskStatus, CreateTaskInput, UpdateTaskInput } from '../repositories/task.repository';
+import { NotFoundError } from '../utils/customErrors';
+import { logger } from '../utils/logger';
 
 export class TaskService {
+  private taskRepository: TaskRepository;
+
+  constructor(taskRepository: TaskRepository = new TaskRepository()) {
+    this.taskRepository = taskRepository;
+  }
+
   /**
    * Crea una tarea para un usuario especifico.
+   * @throws {Error} Si el titulo esta vacio
    */
   async createTask(
     userId: number,
@@ -13,84 +20,90 @@ export class TaskService {
     fechaVencimiento?: string,
     estado: TaskStatus = 'pendiente'
   ) {
-    const query = `
-      INSERT INTO tasks (user_id, titulo, descripcion, fecha_vencimiento, estado)
-      VALUES ($1, $2, $3, $4, $5) 
-      RETURNING *`;
-    const values = [userId, titulo, descripcion ?? null, fechaVencimiento ?? null, estado];
-    
-    const result = await pool.query(query, values);
-    return result.rows[0];
-  }
+    if (!titulo || titulo.trim().length === 0) {
+      throw new Error('El titulo es obligatorio');
+    }
 
-  async getTasksByUser(userId: number) {
-    const result = await pool.query('SELECT * FROM tasks WHERE user_id = $1', [userId]);
-    return result.rows;
-  }
+    const input: CreateTaskInput = {
+      userId,
+      titulo: titulo.trim(),
+      descripcion: descripcion?.trim(),
+      fechaVencimiento,
+      estado
+    };
 
-  async getTaskById(taskId: number, userId: number) {
-    const result = await pool.query(
-      'SELECT * FROM tasks WHERE id = $1 AND user_id = $2',
-      [taskId, userId]
-    );
-    return result.rows[0];
+    const task = await this.taskRepository.create(input);
+    logger.info(`Tarea creada: ${task.id} por usuario: ${userId}`);
+    return task;
   }
 
   /**
-   * Actualiza solo los campos enviados de una tarea del usuario.
+   * Obtiene todas las tareas de un usuario.
+   */
+  async getTasksByUser(userId: number) {
+    return this.taskRepository.findByUserId(userId);
+  }
+
+  /**
+   * Obtiene una tarea especifica por ID y usuario.
+   * @throws {NotFoundError} Si la tarea no existe o no pertenece al usuario
+   */
+  async getTaskById(taskId: number, userId: number) {
+    const task = await this.taskRepository.findByIdAndUserId(taskId, userId);
+    if (!task) {
+      throw new NotFoundError('Tarea no encontrada o no tienes permiso');
+    }
+    return task;
+  }
+
+  /**
+   * Actualiza una tarea existente.
+   * @throws {NotFoundError} Si la tarea no existe
+   * @throws {Error} Si no hay campos para actualizar
    */
   async updateTask(
     taskId: number,
     userId: number,
-    data: {
-      titulo?: string;
-      descripcion?: string;
-      fecha_vencimiento?: string;
-      estado?: TaskStatus;
-    }
+    data: UpdateTaskInput
   ) {
-    const fields: string[] = [];
-    const values: unknown[] = [];
-
-    if (data.titulo !== undefined) {
-      fields.push(`titulo = $${values.length + 1}`);
-      values.push(data.titulo);
-    }
-    if (data.descripcion !== undefined) {
-      fields.push(`descripcion = $${values.length + 1}`);
-      values.push(data.descripcion);
-    }
-    if (data.fecha_vencimiento !== undefined) {
-      fields.push(`fecha_vencimiento = $${values.length + 1}`);
-      values.push(data.fecha_vencimiento);
-    }
-    if (data.estado !== undefined) {
-      fields.push(`estado = $${values.length + 1}`);
-      values.push(data.estado);
+    // Validar que haya al menos un campo para actualizar
+    const hasFieldsToUpdate = Object.values(data).some(v => v !== undefined);
+    if (!hasFieldsToUpdate) {
+      throw new Error('No se proporcionaron campos para actualizar');
     }
 
-    if (!fields.length) return null;
+    const task = await this.taskRepository.update(taskId, userId, data);
+    if (!task) {
+      throw new NotFoundError('Tarea no encontrada o no tienes permiso');
+    }
 
-    values.push(taskId, userId);
-    const query = `
-      UPDATE tasks
-      SET ${fields.join(', ')}
-      WHERE id = $${values.length - 1} AND user_id = $${values.length}
-      RETURNING *`;
-
-    const result = await pool.query(query, values);
-    return result.rows[0];
+    logger.info(`Tarea actualizada: ${taskId} por usuario: ${userId}`);
+    return task;
   }
 
+  /**
+   * Marca una tarea como completada.
+   * @throws {NotFoundError} Si la tarea no existe
+   */
   async completeTask(taskId: number, userId: number) {
-    const query = 'UPDATE tasks SET estado = $1 WHERE id = $2 AND user_id = $3 RETURNING *';
-    const values = ['completada', taskId, userId]; 
-    const result = await pool.query(query, values);
-    return result.rows[0];
+    const task = await this.taskRepository.complete(taskId, userId);
+    if (!task) {
+      throw new NotFoundError('Tarea no encontrada o no tienes permiso');
+    }
+    logger.info(`Tarea completada: ${taskId} por usuario: ${userId}`);
+    return task;
   }
+
+  /**
+   * Elimina una tarea.
+   * @throws {NotFoundError} Si la tarea no existe
+   */
   async deleteTask(taskId: number, userId: number) {
-    const query = 'DELETE FROM tasks WHERE id = $1 AND user_id = $2 RETURNING *';
-    const result = await pool.query(query, [taskId, userId]);
-    return result.rows[0];
+    const task = await this.taskRepository.delete(taskId, userId);
+    if (!task) {
+      throw new NotFoundError('Tarea no encontrada o no tienes permiso');
+    }
+    logger.info(`Tarea eliminada: ${taskId} por usuario: ${userId}`);
+    return task;
   }
 }

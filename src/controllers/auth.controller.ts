@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { AuthService } from '../services/auth.service';
-import { logger } from '../utils/logger';
-import { AppError, AuthenticationError, ConflictError } from '../utils/customErrors';
+import { AuthenticatedRequest } from '../types/express';
 
 const authService = new AuthService();
 
@@ -17,11 +16,9 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
       message: 'Usuario creado con éxito', 
       user 
     });
-  } catch (error: any) {
-    logger.error('DETALLE DEL ERROR REGISTRO', error?.message);
-    if (error instanceof AppError) return next(error);
-    if (error?.code === '23505') return next(new ConflictError('El email ya esta registrado'));
-    return next(error);
+  } catch (error) {
+    // Los errores específicos ya son lanzados por el servicio
+    next(error);
   }
 };
 
@@ -31,16 +28,14 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password } = req.body;
-
     const result = await authService.login(email, password);
 
     res.status(200).json({
       message: 'Login exitoso',
       ...result
     });
-  } catch (error: any) {
-    logger.error('DETALLE DEL ERROR LOGIN', error?.message);
-    if (error instanceof AppError) return next(error);
-    return next(new AuthenticationError(error?.message ?? 'Credenciales invalidas'));
+  } catch (error) {
+    // Los errores específicos ya son lanzados por el servicio
+    next(error);
   }
 };
